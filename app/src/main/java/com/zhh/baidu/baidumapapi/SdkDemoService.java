@@ -1,10 +1,18 @@
 package com.zhh.baidu.baidumapapi;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
+import android.app.Activity;
+import android.app.Service;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.support.annotation.Nullable;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.TextView;
+
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
@@ -13,76 +21,31 @@ import com.baidu.location.Poi;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import okhttp3.Call;
 
 /***
  * 此demo为定位基础示例
  * author zhh
  */
-public class SdkDemo extends Activity {
-	private TextView locationResult;
-	private TextView tv;
-	private Button startLocation;
+public class SdkDemoService extends Service {
 
 	private LocationClient mLocationClient;
 	private LocationClientOption mOption;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_sdk);
-		Intent intent = new Intent(this, SdkDemoService.class);
-		stopService(intent);
-		tv=(TextView) findViewById(R.id.textView2);
-		initView();
-
+	public void onCreate() {
+		super.onCreate();
 		mLocationClient = new LocationClient(getApplication());
 		mLocationClient.setLocOption(getDefaultLocationClientOption());
 		mLocationClient.registerLocationListener(mListener);
-
+		if(mLocationClient != null && !mLocationClient.isStarted()){
+			mLocationClient.start();
+		}
 	}
 
-	private void initView() {
 
-		locationResult = (TextView) findViewById(R.id.textView1);
-		startLocation = (Button) findViewById(R.id.addfence);
-		startLocation.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
 
-				if (startLocation.getText().toString().equals("开始定位")) {
 
-					if(mLocationClient != null && !mLocationClient.isStarted()){
-						mLocationClient.start();
-						startLocation.setText("停止定位");
-					}
-
-				} else {
-					if(mLocationClient != null && mLocationClient.isStarted()){
-						mLocationClient.stop();
-						startLocation.setText("开始定位");
-					}
-				}
-
-			}
-		});
-
-	}
 
 	public LocationClientOption getDefaultLocationClientOption(){
 		if(mOption == null){
@@ -166,28 +129,13 @@ public class SdkDemo extends Activity {
 		return mOption;
 	}
 
-	Handler handler = new Handler() {
-		public void handleMessage(Message msg) {
-			locationResult.setText((String) msg.obj);
-		};
-	};
 
-	public void logMsg(String str) {
-		try {
-			if (locationResult != null) {
-				Message msg = Message.obtain();
-				msg.obj = str;
-				handler.sendMessage(msg);
-			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+
 
 
 	@Override
-	protected void onDestroy() {
+	public void onDestroy() {
 		mLocationClient.unRegisterLocationListener(mListener); // 注销掉监听
 		if(mLocationClient != null && mLocationClient.isStarted()){
 			mLocationClient.stop(); // 停止定位服务
@@ -195,11 +143,13 @@ public class SdkDemo extends Activity {
 		super.onDestroy();
 	}
 
+	@Nullable
 	@Override
-	protected void onStart() {
-		super.onStart();
-
+	public IBinder onBind(Intent intent) {
+		return null;
 	}
+
+
 
 	/*****
 	 *
@@ -297,13 +247,11 @@ public class SdkDemo extends Activity {
 						public void onError(Call call, Exception e, int id) {
 
 							System.out.println(e.toString());
-							tv.setText(e.toString());
 						}
 
 						@Override
 						public void onResponse(String response, int id) {
 							System.out.println("---------"+response);
-							tv.setText(response);
 						}
 					});
 //			String url = "http://ghosthgy.top/baidumap/updata.php";
@@ -338,7 +286,6 @@ public class SdkDemo extends Activity {
 //			request.setTag("testPost");
 //			//将请求加入全局队列中
 //			DemoApplication.getHttpQueues().add(request);
-			logMsg(sb.toString());
 		}
 
 	};

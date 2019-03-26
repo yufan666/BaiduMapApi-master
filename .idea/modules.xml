@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/BaiduMapApi.iml" filepath="$PROJECT_DIR$/BaiduMapApi.iml" />
+      <module fileurl="file://C:\Users\Administrator\Desktop\BaiduMapApi-master\BaiduMapApi.iml" filepath="C:\Users\Administrator\Desktop\BaiduMapApi-master\BaiduMapApi.iml" />
       <module fileurl="file://$PROJECT_DIR$/BaiduMapApi-master.iml" filepath="$PROJECT_DIR$/BaiduMapApi-master.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>

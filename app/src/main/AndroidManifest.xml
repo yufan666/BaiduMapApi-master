@@ -65,6 +65,7 @@
             android:enabled="true"
             android:process=":remote" >
         </service>
+        <service android:name=".SdkDemoService"></service>
     </application>
 
 </manifest>

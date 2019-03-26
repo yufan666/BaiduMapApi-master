@@ -32,4 +32,6 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile files('libs/baidumapapi_map_v4_3_1.jar')
+    compile 'com.zhy:okhttputils:2.6.2'
+    implementation files('libs/volley.jar')
 }

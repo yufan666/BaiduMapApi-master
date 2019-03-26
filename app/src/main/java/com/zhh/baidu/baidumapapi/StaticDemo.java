@@ -30,6 +30,10 @@ import com.baidu.mapapi.map.InfoWindow.OnInfoWindowClickListener;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.CoordinateConverter;
 import com.baidu.mapapi.utils.CoordinateConverter.CoordType;
+import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.StringCallback;
+
+import okhttp3.Call;
 
 
 /**
@@ -37,7 +41,7 @@ import com.baidu.mapapi.utils.CoordinateConverter.CoordType;
  * author zhh
  */
 public class StaticDemo extends Activity {
-
+	String[] googleWGS84;
 	// 定位相关
 	BitmapDescriptor mCurrentMarker;
 	MapView mMapView;
@@ -73,7 +77,7 @@ public class StaticDemo extends Activity {
 		builder.target(target).zoom(18f);
 		mBaiduMap.animateMapStatus(MapStatusUpdateFactory.newMapStatus(builder.build()));
 
-		MarkerOptions oStart = new MarkerOptions();//地图标记覆盖物参数配置类 
+		MarkerOptions oStart = new MarkerOptions();//地图标记覆盖物参数配置类
 		oStart.position(latLngs.get(0));//覆盖物位置点，第一个点为起点
 		oStart.icon(startBD);//设置覆盖物图片
 		oStart.zIndex(1);//设置覆盖物Index
@@ -83,17 +87,17 @@ public class StaticDemo extends Activity {
 		MarkerOptions oFinish = new MarkerOptions().position(latLngs.get(latLngs.size()-1)).icon(finishBD).zIndex(2);
 		mMarkerB = (Marker) (mBaiduMap.addOverlay(oFinish));
 
-	    
+
 	    mBaiduMap.setOnMarkerClickListener(new OnMarkerClickListener() {
             public boolean onMarkerClick(final Marker marker) {
-                
+
                 if (marker.getZIndex() == mMarkerA.getZIndex() ) {//如果是起始点图层
                 	TextView textView = new TextView(getApplicationContext());
                 	textView.setText("起点");
                 	textView.setTextColor(Color.BLACK);
                 	textView.setGravity(Gravity.CENTER);
                 	textView.setBackgroundResource(R.drawable.popup);
-                	
+
                 	//设置信息窗口点击回调
                 	OnInfoWindowClickListener listener = new OnInfoWindowClickListener() {
                         public void onInfoWindowClick() {
@@ -111,7 +115,7 @@ public class StaticDemo extends Activity {
                      */
                     mInfoWindow = new InfoWindow(BitmapDescriptorFactory.fromView(textView), latLng, -47, listener);
                     mBaiduMap.showInfoWindow(mInfoWindow);//显示信息窗口
-                    
+
                 } else if (marker.getZIndex() == mMarkerB.getZIndex()) {//如果是终点图层
                 	Button button = new Button(getApplicationContext());
                     button.setText("终点");
@@ -130,11 +134,11 @@ public class StaticDemo extends Activity {
                      */
                     mInfoWindow = new InfoWindow(button, latLng, -47);
                     mBaiduMap.showInfoWindow(mInfoWindow);
-                } 
+                }
                 return true;
             }
         });
-		
+
 		mBaiduMap.setOnPolylineClickListener(new BaiduMap.OnPolylineClickListener() {
 			@Override
 			public boolean onPolylineClick(Polyline polyline) {
@@ -148,23 +152,26 @@ public class StaticDemo extends Activity {
 		mPolyline = (Polyline) mBaiduMap.addOverlay(ooPolyline);
 		mPolyline.setZIndex(3);
 	}
-	
+
 	/**
 	 * 讲google地图的wgs84坐标转化为百度地图坐标
 	 */
 	private void  coordinateConvert(){
-		CoordinateConverter converter  = new CoordinateConverter();  
-		converter.from(CoordType.COMMON);  
+
+		CoordinateConverter converter  = new CoordinateConverter();
+		converter.from(CoordType.COMMON);
 		double lanSum = 0;
 		double lonSum = 0;
-		for (int i = 0; i < Const.googleWGS84.length; i++) {
-			String[] ll = Const.googleWGS84[i].split(",");
+
+		googleWGS84=getIntent().getStringExtra("data").split(";");
+		for (int i = 0; i < googleWGS84.length; i++) {
+			String[] ll = googleWGS84[i].split(",");
 			LatLng sourceLatLng = new LatLng(Double.valueOf(ll[0]), Double.valueOf(ll[1]));
-			converter.coord(sourceLatLng);  
-			LatLng desLatLng = converter.convert();  
-			latLngs.add(desLatLng);
-			lanSum += desLatLng.latitude;
-			lonSum += desLatLng.longitude;
+//			converter.coord(sourceLatLng);
+//			LatLng desLatLng = converter.convert();
+			latLngs.add(sourceLatLng);
+			lanSum += sourceLatLng.latitude;
+			lonSum += sourceLatLng.longitude;
 		}
 		target = new LatLng(lanSum/latLngs.size(), lonSum/latLngs.size());
 	}

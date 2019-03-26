@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,6 +12,10 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.baidu.mapapi.SDKInitializer;
+import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.StringCallback;
+
+import okhttp3.Call;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -72,8 +77,24 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, StaticDemo.class);
-                MainActivity.this.startActivity(intent);
+                OkHttpUtils
+                        .get()
+                        .url("http://ghosthgy.top/baidumap/show.php")
+                        .build().execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        System.out.println("-------"+e.toString());
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        System.out.println("-------"+response);
+                        Intent intent = new Intent(MainActivity.this, StaticDemo.class);
+                        intent.putExtra("data",response);
+                        MainActivity.this.startActivity(intent);
+                    }
+                });
+
             }
         });
 
@@ -86,6 +107,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = new Intent(MainActivity.this, SdkDemoService.class);
+        MainActivity.this.stopService(intent);
+        MainActivity.this.startService(intent);
     }
 
     @Override
